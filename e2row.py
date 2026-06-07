@@ -29,33 +29,33 @@ def top_edges(row):
 def bottom_edges(row):
     return ''.join(pieces[p][2] for p in row)
 
-# puzzdata = 'aabc/aacb/aacc/aacd/abeb/abfd/abgd/abib/abid/abkb/abkc/ablb/ablc/aceb/acec/aced/acjb/acjc/ackd/adec/aded/adfb/adfc/adjb/adjd/adkc/adlb/adld/efeh/efkg/egfj/eghf/egkj/ehej/ehfg/eihl/eikk/ejgf/ejgi/ekli/elhk/elig/fffi/fflk/fgkk/fhfk/fhgj/figg/fjgg/fjil/flih/ggil/ghih/ghlh/gihj/gjkh/gkhi/hijl/hjkl/hkki/hkll/hlji/hljj/iijl'
-puzzdata = 'aabb/aabd/aacc/aacd/abgb/abgc/abib/abic/abid/aceb/acfb/acgc/acgd/achd/adec/aded/adfb/adgc/adhb/adic/eehf/efff/efii/eggh/eghi/ehgf/ehhf/ehhh/eifg/eifh/eihg/eihi/fgfh/fggi/fghi/figi'
+PUZZLES = {
+    '6x6': 'aabb/aabd/aacc/aacd/abgb/abgc/abib/abic/abid/aceb/acfb/acgc/acgd/achd/adec/aded/adfb/adgc/adhb/adic/eehf/efff/efii/eggh/eghi/ehgf/ehhf/ehhh/eifg/eifh/eihg/eihi/fgfh/fggi/fghi/figi',
+    '8x8': 'aabc/aacb/aacc/aacd/abeb/abfd/abgd/abib/abid/abkb/abkc/ablb/ablc/aceb/acec/aced/acjb/acjc/ackd/adec/aded/adfb/adfc/adjb/adjd/adkc/adlb/adld/efeh/efkg/egfj/eghf/egkj/ehej/ehfg/eihl/eikk/ejgf/ejgi/ekli/elhk/elig/fffi/fflk/fgkk/fhfk/fhgj/figg/fjgg/fjil/flih/ggil/ghih/ghlh/gihj/gjkh/gkhi/hijl/hjkl/hkki/hkll/hlji/hljj/iijl',
+}
 
-width = int(math.sqrt(len(puzzdata.split('/'))))
-height = width
+def setup(key):
+    global puzzdata, width, height, pieces0, pieces, row_fit, row_fit_last
+    puzzdata = PUZZLES[key]
+    width = int(math.sqrt(len(puzzdata.split('/'))))
+    height = width
+    print(f'width = {width}')
+    pieces0 = ['aaaa'] + puzzdata.split('/')
+    pieces = {}
+    for i, p in enumerate(pieces0):
+        for rot in range(4):
+            pieces[(i, rot)] = p
+            p = p[3] + p[:3]
+    row_fit = defaultdict(list)
+    row_fit_last = defaultdict(list)
+    for k, val in pieces.items():
+        left = val[3]
+        if val[1] == 'a':
+            row_fit_last[left].append(k)
+        else:
+            row_fit[left].append(k)
 
-print(f'width = {width}')
-
-pieces0 = ['aaaa'] + puzzdata.split('/')
-
-pieces = dict()
-for i, p in enumerate(pieces0):
-    for rot in range(4):
-        pieces[(i, rot)] = p
-        p = p[3] + p[:3]
-
-# For row building: keyed by left edge.
-# row_fit: pieces where right edge is not 'a' (interior columns)
-# row_fit_last: pieces where right edge is 'a' (rightmost column)
-row_fit = defaultdict(list)
-row_fit_last = defaultdict(list)
-for key1, val in pieces.items():
-    left = val[3]
-    if val[1] == 'a':
-        row_fit_last[left].append(key1)
-    else:
-        row_fit[left].append(key1)
+setup('6x6')
 
 def build_bitmaps():
     print(len(pieces0), pieces0)
@@ -132,7 +132,11 @@ def search(arrangements, top_edge_bm, bottom_edge_bm, piece_bm):
     return solution_count[0]
 
 if __name__ == '__main__':
-    import time
+    import argparse, time
+    parser = argparse.ArgumentParser()
+    parser.add_argument('puzzle', nargs='?', default='6x6', choices=PUZZLES.keys())
+    args = parser.parse_args()
+    setup(args.puzzle)
     t0 = time.monotonic()
     arrangements, top_edge_bm, bottom_edge_bm, piece_bm = build_bitmaps()
     t1 = time.monotonic()
