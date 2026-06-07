@@ -1,8 +1,15 @@
 from collections import defaultdict
 from pyroaring import BitMap
 import math
+import os
+import psutil
 import random
 import sys
+
+_proc = psutil.Process(os.getpid())
+
+def mem_mb():
+    return _proc.memory_info().rss / 1024 / 1024
 
 def print_quad(s, wid):
     for rownum in range(len(s)//wid):
@@ -85,7 +92,7 @@ if __name__ == '__main__':
             s = solution[width:]
             if solcount % 100000 == 0:
                 disp = ' '.join([f'{p[0]}/{p[1]}' for p in solution[width:]])
-                print(f'found #{solcount} -')
+                print(f'found #{solcount} - mem={mem_mb():.1f}MB')
                 right_index = ''
                 print_quad(s, width)
                 for rownum in range(width):
@@ -121,7 +128,7 @@ if __name__ == '__main__':
             continue
         nodes[0] += 1
         if q1 % 1000 == 0:
-            print(f'trying arrangement {q1} in NW')
+            print(f'trying arrangement {q1} in NW - mem={mem_mb():.1f}MB')
             print(f'nodes = {nodes}', flush=True)
         q1_down_bm = right_edge_bm[down_edges(s1)]
         forbid1 = BitMap()
