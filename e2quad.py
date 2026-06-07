@@ -11,6 +11,13 @@ _proc = psutil.Process(os.getpid())
 def mem_mb():
     return _proc.memory_info().rss / 1024 / 1024
 
+def fmt_duration(seconds):
+    ms = int(seconds * 1000) % 1000
+    s = int(seconds) % 60
+    m = int(seconds // 60) % 60
+    h = int(seconds // 3600)
+    return f'{h}h {m}m {s}s {ms}ms'
+
 def print_quad(s, wid):
     for rownum in range(len(s)//wid):
         row = s[rownum*wid:(rownum+1)*wid]
@@ -166,5 +173,11 @@ def search(arrangements, right_edge_bm, down_edge_bm, piece_bm):
     return nodes[3]
 
 if __name__ == '__main__':
+    import time
+    t0 = time.monotonic()
     arrangements, right_edge_bm, down_edge_bm, piece_bm = build_bitmaps()
+    t1 = time.monotonic()
+    print(f'build_bitmaps: {fmt_duration(t1-t0)}', flush=True)
     search(arrangements, right_edge_bm, down_edge_bm, piece_bm)
+    t2 = time.monotonic()
+    print(f'search: {fmt_duration(t2-t1)}', flush=True)
