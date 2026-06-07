@@ -128,49 +128,46 @@ def build_bitmaps():
     return arrangements, right_edge_bm, down_edge_bm, piece_bm
 
 def search(arrangements, right_edge_bm, down_edge_bm, piece_bm):
-    nodes = [0]*4
+    nodes = [0] * 4
+    solution_count = [0]
+
+    def fill_quadrant(depth, chosen, forbidden, candidates, q1_down_bm):
+        for qi in candidates:
+            s = arrangements[qi]
+            nodes[depth] += 1
+
+            if depth == 0:
+                if qi % 1000 == 0:
+                    print(f'trying arrangement {qi} in NW - mem={mem_mb():.1f}MB')
+                    print(f'nodes = {nodes}', flush=True)
+                next_q1_down_bm = right_edge_bm[down_edges(s)]
+            else:
+                next_q1_down_bm = q1_down_bm
+
+            new_forbidden = forbidden.copy()
+            for p in s:
+                new_forbidden = new_forbidden.union(piece_bm[p[0]])
+
+            if depth == 3:
+                solution_count[0] += 1
+                s1, s2, s3, s4 = arrangements[chosen[0]], arrangements[chosen[1]], arrangements[chosen[2]], s
+                print(f'\nq4 solution #{solution_count[0]} ({chosen[0]},{chosen[1]},{chosen[2]},{qi})')
+                solution = lr_join_quad(s1, rot_quad(s2, 1)) + \
+                    lr_join_quad(rot_quad(s4, 3), rot_quad(s3, 2))
+                print_quad(solution, width * 2)
+                print('solution=' + ' '.join([f'{p[0]}/{p[1]}' for p in solution]), flush=True)
+            else:
+                next_candidates = down_edge_bm[right_edges(s)] - new_forbidden
+                if depth == 2:
+                    next_candidates = next_candidates.intersection(q1_down_bm)
+                fill_quadrant(depth + 1, chosen + [qi], new_forbidden, next_candidates, next_q1_down_bm)
+
     print('bitmaps complete, starting search')
-    for q1, s1 in enumerate(arrangements):
-        if s1[0][0] != 1:
-            # only try arrangements in first quadrant that user the first corner
-            continue
-        nodes[0] += 1
-        if q1 % 1000 == 0:
-            print(f'trying arrangement {q1} in NW - mem={mem_mb():.1f}MB')
-            print(f'nodes = {nodes}', flush=True)
-        q1_down_bm = right_edge_bm[down_edges(s1)]
-        forbid1 = BitMap()
-        # for every piece in quadrant 1...
-        for p in s1:
-            # forbid all arrangements that include this piece
-            forbid1 = forbid1.union(piece_bm[p[0]])
-        q2_bm = down_edge_bm[right_edges(s1)] - forbid1
-        for q2 in q2_bm:
-            nodes[1] += 1
-            s2 = arrangements[q2]
-            forbid2 = forbid1.copy()
-            for p in s2:
-                forbid2 = forbid2.union(piece_bm[p[0]])
-                # what if we calclulate this before our search?
-            q3_bm = down_edge_bm[right_edges(s2)] - forbid2
-            for q3 in q3_bm:
-                nodes[2] += 1
-                # print(f'q3 solution: {snum}, {q2}, {q3}')
-                s3 = arrangements[q3]
-                forbid3 = forbid2.copy()
-                for p in s3:
-                    forbid3 = forbid3.union(piece_bm[p[0]])
-                q4_bm = down_edge_bm[right_edges(s3)] - forbid3
-                for q4 in q4_bm.intersection(q1_down_bm):
-                    nodes[3] += 1
-                    s4 = arrangements[q4]
-                    print(f'\nq4 solution #{nodes[3]} ({q1},{q2},{q3},{q4})')
-                    solution = lr_join_quad(s1, rot_quad(s2,1)) + \
-                        lr_join_quad(rot_quad(s4,3), rot_quad(s3,2))
-                    print_quad(solution, width*2)
-                    print('solution=' + ' '.join([f'{p[0]}/{p[1]}' for p in solution]), flush=True)
+    # only try arrangements in first quadrant that use the first corner piece
+    q1_candidates = BitMap(i for i, s in enumerate(arrangements) if s[0][0] == 1)
+    fill_quadrant(0, [], BitMap(), q1_candidates, None)
     print(f'nodes = {nodes}')
-    return nodes[3]
+    return solution_count[0]
 
 if __name__ == '__main__':
     import time
