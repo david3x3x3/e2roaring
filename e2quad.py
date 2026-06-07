@@ -1,5 +1,6 @@
 from collections import defaultdict
 from pyroaring import BitMap
+import math
 import random
 import sys
 
@@ -37,12 +38,13 @@ def down_edges(s):
     down_index = ''.join(pieces[p][2] for p in s[-width:])
     return down_index
 
-width, height = 3,3
-
-print(f'width = {width}')
-
 # puzzdata = 'aabc/aacb/aacc/aacd/abeb/abfd/abgd/abib/abid/abkb/abkc/ablb/ablc/aceb/acec/aced/acjb/acjc/ackd/adec/aded/adfb/adfc/adjb/adjd/adkc/adlb/adld/efeh/efkg/egfj/eghf/egkj/ehej/ehfg/eihl/eikk/ejgf/ejgi/ekli/elhk/elig/fffi/fflk/fgkk/fhfk/fhgj/figg/fjgg/fjil/flih/ggil/ghih/ghlh/gihj/gjkh/gkhi/hijl/hjkl/hkki/hkll/hlji/hljj/iijl'
 puzzdata = 'aabb/aabd/aacc/aacd/abgb/abgc/abib/abic/abid/aceb/acfb/acgc/acgd/achd/adec/aded/adfb/adgc/adhb/adic/eehf/efff/efii/eggh/eghi/ehgf/ehhf/ehhh/eifg/eifh/eihg/eihi/fgfh/fggi/fghi/figi'
+
+width = int(math.sqrt(len(puzzdata.split('/')))//2)
+height = width
+    
+print(f'width = {width}')
 
 pieces0 = ['aaaa'] + puzzdata.split('/')
 
