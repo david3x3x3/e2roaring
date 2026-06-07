@@ -101,9 +101,8 @@ def search(arrangements, top_edge_bm, bottom_edge_bm, piece_bm):
             row = arrangements[ri]
             nodes[depth] += 1
 
-            if depth == 0 and ri % 1000 == 0:
-                print(f'trying row {ri} at top - mem={mem_mb():.1f}MB')
-                print(f'nodes = {nodes}', flush=True)
+            if sum(nodes) % 100000 == 0:
+                print(f'nodes = {nodes} mem={mem_mb():.1f}MB', flush=True)
 
             new_forbidden = forbidden.copy()
             for p in row:
