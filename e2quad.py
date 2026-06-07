@@ -163,6 +163,7 @@ def search(arrangements, right_edge_bm, down_edge_bm, piece_bm):
                     print_quad(solution, width*2)
                     print('solution=' + ' '.join([f'{p[0]}/{p[1]}' for p in solution]), flush=True)
     print(f'nodes = {nodes}')
+    return nodes[3]
 
 if __name__ == '__main__':
     arrangements, right_edge_bm, down_edge_bm, piece_bm = build_bitmaps()
