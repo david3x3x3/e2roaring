@@ -68,7 +68,7 @@ for key1, val in pieces.items():
         fit[key2] = [key1]
     else:
         fit[key2].insert(0, key1)
-if __name__ == '__main__':
+def build_bitmaps():
     print(len(pieces0), pieces0)
     # for k in fit:
     #     random.shuffle(fit[k])
@@ -118,9 +118,10 @@ if __name__ == '__main__':
                     Q += [(solution + [p], remain - set([piecenum]))]
     print(str(solcount) + ' solutions', flush=True)
     print(str(nodes) + ' nodes', flush=True)
+    return arrangements, right_edge_bm, down_edge_bm, piece_bm
 
+def search(arrangements, right_edge_bm, down_edge_bm, piece_bm):
     nodes = [0]*4
-
     print('bitmaps complete, starting search')
     for q1, s1 in enumerate(arrangements):
         if s1[0][0] != 1:
@@ -162,3 +163,7 @@ if __name__ == '__main__':
                     print_quad(solution, width*2)
                     print('solution=' + ' '.join([f'{p[0]}/{p[1]}' for p in solution]), flush=True)
     print(f'nodes = {nodes}')
+
+if __name__ == '__main__':
+    arrangements, right_edge_bm, down_edge_bm, piece_bm = build_bitmaps()
+    search(arrangements, right_edge_bm, down_edge_bm, piece_bm)
